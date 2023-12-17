@@ -1,16 +1,18 @@
 package Day1;
 
 import AoC23.AoC23Day;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.jetbrains.annotations.NotNull;
 
 public class Day1 implements AoC23Day {
     private static final HashMap<String, Integer> wordToIntMap = buildWordToDigitMap();
@@ -19,17 +21,17 @@ public class Day1 implements AoC23Day {
     private final String filename;
 
     private static @NotNull HashMap<String, Integer> buildWordToDigitMap() {
-        HashMap<String, Integer> m = new HashMap<>();
-        m.put("one", 1);
-        m.put("two", 2);
-        m.put("three", 3);
-        m.put("four", 4);
-        m.put("five", 5);
-        m.put("six", 6);
-        m.put("seven", 7);
-        m.put("eight", 8);
-        m.put("nine", 9);
-        return m;
+        HashMap<String, Integer> map = new HashMap<>();
+        map.put("one", 1);
+        map.put("two", 2);
+        map.put("three", 3);
+        map.put("four", 4);
+        map.put("five", 5);
+        map.put("six", 6);
+        map.put("seven", 7);
+        map.put("eight", 8);
+        map.put("nine", 9);
+        return map;
     }
 
     public Day1(String filename) {
@@ -38,8 +40,13 @@ public class Day1 implements AoC23Day {
 
     @Override
     public void run() {
-        part1();
-        part2();
+        Path filepath = Paths.get(filename);
+        if (Files.exists(filepath)) {
+            part1();
+            part2();
+        } else {
+            System.out.println("Couldn't find this file: " + filename);
+        }
     }
 
     private void part1() {
@@ -54,7 +61,7 @@ public class Day1 implements AoC23Day {
                 int d2 = (last != null) ? getDigit(last) : d1;
                 return (10 * d1) + d2;
             }).sum();
-            System.out.println("The sum is:" + sum);
+            System.out.println("Part 1 - The sum is:" + sum);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -67,26 +74,23 @@ public class Day1 implements AoC23Day {
                 if (line.length() == 1) {
                     d1 = d2 = Character.getNumericValue(line.charAt(0));
                 } else {
-                    d1 = getFirstDigit(line);
-                    d2 = getLastDigit(line);
+                    d1 = getFirstDigit(line).orElseThrow(() -> new RuntimeException("Invalid input"));
+                    d2 = getLastDigit(line).orElseThrow(() -> new RuntimeException("Invalid input"));
                 }
                 return (10 * d1) + d2;
             }).sum();
-            System.out.println("The sum is:" + sum);
-        } catch (FileNotFoundException e) {
-            System.out.println("Couldn't find the file: day1.txt");
+            System.out.println("Part 2 - The sum is:" + sum);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static int getFirstDigit(String line) {
+    private static Optional<Integer> getFirstDigit(String line) {
         Matcher m = digitsAndWordsPattern.matcher(line);
-        String first = m.find() ? m.group() : null;
-        return getDigit(first);
+        return m.find() ? Optional.of(getDigit(m.group())) : Optional.empty();
     }
 
-    private static int getLastDigit(@NotNull String line) {
+    private static Optional<Integer> getLastDigit(@NotNull String line) {
         String last = null;
         for (int i = line.length() - 1; i >= 0; i--) {
             Matcher m2 = digitsAndWordsPattern.matcher(line.substring(i));
@@ -95,10 +99,10 @@ public class Day1 implements AoC23Day {
                 break;
             }
         }
-        return getDigit(last);
+        return (last != null) ? Optional.of(getDigit(last)) : Optional.empty();
     }
 
-    private static int getDigit(String s) {
+    private static int getDigit(@NotNull String s) {
         if (digitsPattern.matcher(s).matches()) {
             return Character.getNumericValue(s.charAt(0));
         } else {

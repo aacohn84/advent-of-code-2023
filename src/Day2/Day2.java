@@ -3,30 +3,30 @@ package Day2;
 import AoC23.AoC23Day;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day2 implements AoC23Day {
     private final String filename;
-    private static final HashMap<String, Integer> colorLimitsMap = getPart1ColorLimits();
+    private static final HashMap<String, Integer> colorLimitsMap = getColorCountMap(12, 13, 14);
 
-    private static HashMap<String, Integer> getPart1ColorLimits() {
+    private static HashMap<String, Integer> getColorCountMap(int redCount, int greenCount, int blueCount) {
         HashMap<String, Integer> map = new HashMap<>();
-        map.put("red", 12);
-        map.put("green", 13);
-        map.put("blue", 14);
+        map.put("red", redCount);
+        map.put("green", greenCount);
+        map.put("blue", blueCount);
         return map;
     }
 
     private static final Pattern gameNumberPattern = Pattern.compile("^Game (\\d+):");
-    private static final Pattern part1ColorCountPattern = Pattern.compile("\\d+ [a-z]+");
+    private static final Pattern colorCountPattern = Pattern.compile("\\d+ [a-z]+");
 
     public Day2(String filename) {
         this.filename = filename;
@@ -37,6 +37,7 @@ public class Day2 implements AoC23Day {
         Path filepath = Paths.get(filename);
         if (Files.exists(filepath)) {
             part1();
+            part2();
         } else {
             System.out.println("Couldn't find this file: " + filename);
         }
@@ -51,20 +52,37 @@ public class Day2 implements AoC23Day {
                     throw new RuntimeException("Unexpected input encountered");
                 }
                 int gameNumber = Integer.parseInt(gameNumberStr);
-                Matcher part1ColorCountMatcher = part1ColorCountPattern.matcher(line);
-                boolean limitExceeded = false;
-                while (part1ColorCountMatcher.find()) {
-                    String[] countAndColor = part1ColorCountMatcher.group().split(" ");
+                Matcher colorCountMatcher = colorCountPattern.matcher(line);
+                while (colorCountMatcher.find()) {
+                    String[] countAndColor = colorCountMatcher.group().split(" ");
                     int count = Integer.parseInt(countAndColor[0]);
                     String color = countAndColor[1];
                     if (count > colorLimitsMap.get(color)) {
-                        limitExceeded = true;
-                        break;
+                        return 0;
                     }
                 }
-                return !limitExceeded ? gameNumber : 0;
+                return gameNumber;
             }).sum();
             System.out.println("Part 1 sum: " + sum);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void part2() {
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            int sum = br.lines().mapToInt(line -> {
+                Map<String, Integer> colorMaxMap = getColorCountMap(0, 0, 0);
+                Matcher colorCountMatcher = colorCountPattern.matcher(line);
+                while (colorCountMatcher.find()) {
+                    String[] countAndColor = colorCountMatcher.group().split(" ");
+                    int count = Integer.parseInt(countAndColor[0]);
+                    String color = countAndColor[1];
+                    colorMaxMap.put(color, Math.max(colorMaxMap.get(color), count));
+                }
+                return colorMaxMap.values().stream().reduce(1, (acc, colorMax) -> acc * colorMax);
+            }).sum();
+            System.out.println("Part 2 sum: " + sum);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

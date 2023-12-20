@@ -1,5 +1,11 @@
 package AoC23;
 
-public interface AoC23Day {
-    void run();
+public abstract class AoC23Day {
+    protected final String filename;
+
+    public abstract void run();
+
+    public AoC23Day(String filename) {
+        this.filename = filename;
+    }
 }

@@ -13,9 +13,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Day2 implements AoC23Day {
-    private final String filename;
+public class Day2 extends AoC23Day {
     private static final HashMap<String, Integer> colorLimitsMap = getColorCountMap(12, 13, 14);
+
+    public Day2(String filename) {
+        super(filename);
+    }
 
     private static HashMap<String, Integer> getColorCountMap(int redCount, int greenCount, int blueCount) {
         HashMap<String, Integer> map = new HashMap<>();
@@ -27,10 +30,6 @@ public class Day2 implements AoC23Day {
 
     private static final Pattern gameNumberPattern = Pattern.compile("^Game (\\d+):");
     private static final Pattern colorCountPattern = Pattern.compile("\\d+ [a-z]+");
-
-    public Day2(String filename) {
-        this.filename = filename;
-    }
 
     @Override
     public void run() {

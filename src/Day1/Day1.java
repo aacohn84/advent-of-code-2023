@@ -14,11 +14,14 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Day1 implements AoC23Day {
+public class Day1 extends AoC23Day {
     private static final HashMap<String, Integer> wordToIntMap = buildWordToDigitMap();
     private static final Pattern digitsAndWordsPattern = Pattern.compile("\\d|one|two|three|four|five|six|seven|eight|nine");
     private static final Pattern digitsPattern = Pattern.compile("\\d");
-    private final String filename;
+
+    public Day1(String filename) {
+        super(filename);
+    }
 
     private static @NotNull HashMap<String, Integer> buildWordToDigitMap() {
         HashMap<String, Integer> map = new HashMap<>();
@@ -32,10 +35,6 @@ public class Day1 implements AoC23Day {
         map.put("eight", 8);
         map.put("nine", 9);
         return map;
-    }
-
-    public Day1(String filename) {
-        this.filename = filename;
     }
 
     @Override

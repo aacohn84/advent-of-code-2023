@@ -14,6 +14,7 @@ import static java.lang.Character.isDigit;
 public class Day3 extends AoC23Day {
 
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("([^.0-9])");
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
 
     public Day3(String filename) {
         super(filename);
@@ -27,88 +28,76 @@ public class Day3 extends AoC23Day {
     private void part1() {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             int sum = 0;
+            // Stage 1 -- start at beginning of file (2 lines: first line and the line below it)
+            // sum any of top line's digits that are adjacent to a symbol on either line
             String currentLine = br.readLine();
             String belowLine = br.readLine();
-            Matcher symbolMatcher = SYMBOL_PATTERN.matcher(currentLine);
-            while (symbolMatcher.find()) {
-                int i = symbolMatcher.start(1);
-                sum += getLineSum(currentLine, i, true);
-                sum += getLineSum(belowLine, i, false);
+            sum += getCurrentLineSum(currentLine, belowLine);
+
+            // Stage 2 -- move to middle of file (3 lines: current line, and the lines above and below it)
+            String aboveLine = currentLine;
+            currentLine = belowLine;
+            while ((belowLine = br.readLine()) != null) {
+                // sum any of current line's digits that are adjacent to a symbol on any of the 3 lines
+                sum += getCurrentLineSum(currentLine, aboveLine, belowLine);
+
+                // shift down one more line
+                aboveLine = currentLine;
+                currentLine = belowLine;
             }
 
-            String aboveLine = null;
-            while ((currentLine = br.readLine()) != null) {
-                symbolMatcher = SYMBOL_PATTERN.matcher(currentLine);
-                while (symbolMatcher.find()) {
-                    int i = symbolMatcher.start(1);
-
-                }
-            }
+            // Stage 3 -- move to end of the file (last line and the line above it)
+            // sum any of bottom line's digits that are adjacent to a symbol on itself or the line above
+            sum += getCurrentLineSum(belowLine, currentLine);
+            System.out.println("Part 1 sum: " + sum);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    /*
-     * Returns a string containing the adjacent integer values to the left of the symbol index (symIdx).
-     * Returns empty string if no digits are found adjacent to the symbol index.
-     */
-    private @NotNull String getDigitsLeft(@NotNull String line, int symIdx) {
-        if (symIdx > 0) {
-            // search for integers to the left of the symbol
-            if (isDigit(line.charAt(symIdx - 1))) {
-                int leftBound = symIdx - 1;
-                while (leftBound - 1 > 0 && isDigit(line.charAt(leftBound - 1))) {
-                    leftBound = leftBound - 1;
-                }
-                return line.substring(leftBound, symIdx);
+    private int getCurrentLineSum(String currentLine, String adjLine) {
+        return getCurrentLineSum(currentLine, adjLine, null);
+    }
+    private int getCurrentLineSum(String currentLine, String adjLine1, String adjLine2) {
+        int currentLineSum = 0;
+        Matcher numberMatcher = NUMBER_PATTERN.matcher(currentLine);
+        while (numberMatcher.find()) {
+            int left = numberMatcher.start(1);
+            int right = numberMatcher.end(1);
+            if (isAdjacentToSymbol(currentLine, adjLine1, adjLine2, left, right)) {
+                currentLineSum += Integer.parseInt(numberMatcher.group(1));
             }
         }
-        return "";
+        return currentLineSum;
     }
 
-    /*
-     * Returns a string containing the adjacent integer values to the right of the symbol index (symIdx).
-     * Returns empty string if no digits are found adjacent to the symbol index.
-     */
-    private @NotNull String getDigitsRight(@NotNull String line, int symIdx) {
-        if (symIdx < line.length() - 1) {
-            // search for integers to the right of the symbol
-            if (isDigit(line.charAt(symIdx + 1))) {
-                int leftBound = symIdx + 1;
-                int rightBound = leftBound + 1;
-                while (rightBound < line.length() && isDigit(line.charAt(rightBound))) {
-                    rightBound = rightBound + 1;
-                }
-                return line.substring(leftBound, rightBound);
-            }
-        }
-        return "";
+    private static boolean isSymbol(char c) {
+        return !(c == '.') && !isDigit(c);
     }
 
-    /*
-     * Returns the total value of numbers adjacent to the index of the symbol (symIdx).
-     * Ex: Symbol is on the same line as the numbers (sameLine == true)
-     *      ...123@456...
-     *     Result: 123 + 456 = 579
-     *
-     * Ex: Symbol is NOT on the same line as the numbers (sameLine == false)
-     *      ...123456...        ...12.345               ..12.....
-     *      .....@......        .....@...               ....@....
-     *     Result: 123456      Result: 12 + 345 = 357  Result: 12
-     */
-    private int getLineSum(@NotNull String line, int symIdx, boolean sameLine) {
-        String digitsLeft = getDigitsLeft(line, symIdx);
-        String digitsRight = getDigitsRight(line, symIdx);
-        if (!sameLine) {
-            char middleChar = line.charAt(symIdx);
-            if (isDigit(middleChar)) {
-                return Integer.parseInt(digitsLeft + middleChar + digitsRight);
+    private boolean isAdjacentToSymbol(@NotNull String currentLine, String adjLine1, String adjLine2, int left, int right) {
+        int min = left > 0 ? left - 1 : left;
+        int max = right < currentLine.length() - 1 ? right + 1 : right;
+        return isAdjacentToSymbolSameLine(currentLine, min, max) ||
+                isAdjacentToSymbolOtherLine(adjLine1, min, max) ||
+                isAdjacentToSymbolOtherLine(adjLine2, min, max);
+    }
+
+    private static boolean isAdjacentToSymbolSameLine(@NotNull String currentLine, int min, int max) {
+        return isSymbol(currentLine.charAt(min)) || isSymbol(currentLine.charAt(max));
+    }
+
+    private static boolean isAdjacentToSymbolOtherLine(String otherLine, int min, int max) {
+        if (otherLine != null) {
+            int i = min;
+            while (i <= max) {
+                if (isSymbol(otherLine.charAt(i))) {
+                    return true;
+                } else {
+                    i = i + 1;
+                }
             }
         }
-        int intLeft = digitsLeft.isEmpty() ? 0 : Integer.parseInt(digitsLeft);
-        int intRight = digitsRight.isEmpty() ? 0 : Integer.parseInt(digitsRight);
-
-        return intLeft + intRight;
+        return false;
     }
 }

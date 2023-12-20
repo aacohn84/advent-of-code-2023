@@ -13,8 +13,8 @@ import static java.lang.Character.isDigit;
 
 public class Day3 extends AoC23Day {
 
-    private static final Pattern SYMBOL_PATTERN = Pattern.compile("([^.0-9])");
-    private static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
+    // private static final Pattern SYMBOL_PATTERN = Pattern.compile("([^.0-9])");
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("([0-9]+)");
 
     public Day3(String filename) {
         super(filename);
@@ -48,7 +48,7 @@ public class Day3 extends AoC23Day {
 
             // Stage 3 -- move to end of the file (last line and the line above it)
             // sum any of bottom line's digits that are adjacent to a symbol on itself or the line above
-            sum += getCurrentLineSum(belowLine, currentLine);
+            sum += getCurrentLineSum(currentLine, aboveLine);
             System.out.println("Part 1 sum: " + sum);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -63,7 +63,7 @@ public class Day3 extends AoC23Day {
         Matcher numberMatcher = NUMBER_PATTERN.matcher(currentLine);
         while (numberMatcher.find()) {
             int left = numberMatcher.start(1);
-            int right = numberMatcher.end(1);
+            int right = numberMatcher.end(1) - 1;
             if (isAdjacentToSymbol(currentLine, adjLine1, adjLine2, left, right)) {
                 currentLineSum += Integer.parseInt(numberMatcher.group(1));
             }

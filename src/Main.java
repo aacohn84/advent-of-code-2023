@@ -1,8 +1,8 @@
-import Day3.Day3;
+import Day4.Day4;
 
 public class Main {
     public static void main(String[] args) {
-        Day3 day3 = new Day3("day3.txt");
-        day3.run();
+        Day4 day4 = new Day4("Inputs/day4.txt");
+        day4.run();
     }
 }

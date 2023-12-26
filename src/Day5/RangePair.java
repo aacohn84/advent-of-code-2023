@@ -12,14 +12,6 @@ public class RangePair {
         this.sourceRange = sourceRange;
     }
 
-    public Range<Long> getDestRange() {
-        return destRange;
-    }
-
-    public Range<Long> getSourceRange() {
-        return sourceRange;
-    }
-
     public boolean inSourceRange(long val) {
         return sourceRange.contains(val);
     }

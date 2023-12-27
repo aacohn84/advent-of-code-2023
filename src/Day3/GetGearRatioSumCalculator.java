@@ -32,6 +32,10 @@ class GetGearRatioSumCalculator implements LineSumCalculator {
         return gearRatioSum;
     }
 
+    public int partNumber() {
+        return 1;
+    }
+
     /*
      * Returns a string containing the adjacent integer values to the left of the gear index (gearIdx).
      * Returns empty string if no digits are found adjacent to the gear index.

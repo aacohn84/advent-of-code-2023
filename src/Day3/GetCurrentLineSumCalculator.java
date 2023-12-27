@@ -27,6 +27,10 @@ class GetCurrentLineSumCalculator implements LineSumCalculator {
         return currentLineSum;
     }
 
+    public int partNumber() {
+        return 1;
+    }
+
     private boolean isSymbol(char c) {
         return !(c == '.') && !isDigit(c);
     }

@@ -6,9 +6,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Day5 extends AoC23Day {
@@ -19,74 +20,62 @@ public class Day5 extends AoC23Day {
     }
 
     @Override
-    public void run() {
-        part1();
-        part2();
+    protected void part1(BufferedReader br) throws IOException {
+        long minLocationVal = Long.MAX_VALUE;
+        List<Long> seeds = parseSeedsLinePart1(br.readLine()); // first line contains the seeds list
+        br.readLine(); // skip the second line, which is blank
+        GardenMap rangesByCategory = getSourceToDestRangeMappings(br);
+        for (long seed : seeds) {
+            long transformVal = seed;
+            for (GardenCategory category : GardenCategory.values()) {
+                for (RangePair r : rangesByCategory.get(category)) {
+                    if (r.inSourceRange(transformVal)) {
+                        transformVal = r.mapToDestVal(transformVal);
+                        break;
+                    }
+                }
+            }
+            minLocationVal = Math.min(minLocationVal, transformVal);
+        }
+        System.out.println("Part 1 Min Location Value: " + minLocationVal);
     }
 
-    private void part1() {
-        try (BufferedReader br = Files.newBufferedReader(Paths.get(filename))) {
-            long minLocationVal = Long.MAX_VALUE;
-            List<Long> seeds = parseSeedsLinePart1(br.readLine()); // first line contains the seeds list
-            br.readLine(); // skip the second line, which is blank
-            GardenMap rangesByCategory = getSourceToDestRangeMappings(br);
-            for (long seed : seeds) {
-                long transformVal = seed;
-                for (GardenCategory category : GardenCategory.values()) {
-                    for (RangePair r : rangesByCategory.get(category)) {
-                        if (r.inSourceRange(transformVal)) {
-                            transformVal = r.mapToDestVal(transformVal);
-                            break;
+    @Override
+    protected void part2(BufferedReader br) throws IOException {
+        long minLocationVal = Long.MAX_VALUE;
+        RangeList seedRanges = parseSeedsLinePart2(br.readLine());
+        br.readLine();
+        GardenMap gardenMap = getSourceToDestRangeMappings(br);
+        for (Range<Long> seedRange : seedRanges) {
+            RangeList rangesToTransform = new RangeList();
+            rangesToTransform.add(seedRange);
+            RangeList transformedRanges = new RangeList();
+            for (GardenCategory category : GardenCategory.values()) {
+                rangesToTransform.addAll(transformedRanges);
+                transformedRanges.clear();
+                for (RangePair p : gardenMap.get(category)) {
+                    for (int i = 0; i < rangesToTransform.size(); i++) {
+                        Range<Long> r = rangesToTransform.get(i);
+                        if (p.isSourceRangeContainsRange(r)) {
+                            transformedRanges.add(p.mapToDestRange(r));
+                            rangesToTransform.remove(r);
+                            i--; // the removed range may have been replaced by one coming after it in the list
+                        } else if (p.isSourceRangeOverlappedBy(r)) {
+                            Range<Long> intersectingRange = p.getSourceRangeIntersection(r);
+                            transformedRanges.add(p.mapToDestRange(intersectingRange));
+                            rangesToTransform.remove(r);
+                            RangeList remainder = p.getSourceRangeIntersectionRemainder(r);
+                            rangesToTransform.addAll(remainder);
+                            i--; // the removed range may have been replaced by one coming after it in the list
                         }
                     }
                 }
-                minLocationVal = Math.min(minLocationVal, transformVal);
             }
-            System.out.println("Part 1 Min Location Value: " + minLocationVal);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+            transformedRanges.addAll(rangesToTransform); // capture any unmapped humidity ranges
+            long rangeMin = transformedRanges.stream().mapToLong(Range::getMinimum).min().orElse(0);
+            minLocationVal = Math.min(minLocationVal, rangeMin);
         }
-    }
-
-    private void part2() {
-        try (BufferedReader br = Files.newBufferedReader(Paths.get(filename))) {
-            long minLocationVal = Long.MAX_VALUE;
-            RangeList seedRanges = parseSeedsLinePart2(br.readLine());
-            br.readLine();
-            GardenMap gardenMap = getSourceToDestRangeMappings(br);
-            for (Range<Long> seedRange : seedRanges) {
-                RangeList rangesToTransform = new RangeList();
-                rangesToTransform.add(seedRange);
-                RangeList transformedRanges = new RangeList();
-                for (GardenCategory category : GardenCategory.values()) {
-                    rangesToTransform.addAll(transformedRanges);
-                    transformedRanges.clear();
-                    for (RangePair p : gardenMap.get(category)) {
-                        for (int i = 0; i < rangesToTransform.size(); i++) {
-                            Range<Long> r = rangesToTransform.get(i);
-                            if (p.isSourceRangeContainsRange(r)) {
-                                transformedRanges.add(p.mapToDestRange(r));
-                                rangesToTransform.remove(r);
-                                i--; // the removed range may have been replaced by one coming after it in the list
-                            } else if (p.isSourceRangeOverlappedBy(r)) {
-                                Range<Long> intersectingRange = p.getSourceRangeIntersection(r);
-                                transformedRanges.add(p.mapToDestRange(intersectingRange));
-                                rangesToTransform.remove(r);
-                                RangeList remainder = p.getSourceRangeIntersectionRemainder(r);
-                                rangesToTransform.addAll(remainder);
-                                i--; // the removed range may have been replaced by one coming after it in the list
-                            }
-                        }
-                    }
-                }
-                transformedRanges.addAll(rangesToTransform); // capture any unmapped humidity ranges
-                long rangeMin = transformedRanges.stream().mapToLong(Range::getMinimum).min().orElse(0);
-                minLocationVal = Math.min(minLocationVal, rangeMin);
-            }
-            System.out.println("Part 2 Min Location Value: " + minLocationVal);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+        System.out.println("Part 2 Min Location Value: " + minLocationVal);
     }
 
     private static @NotNull GardenMap getSourceToDestRangeMappings(BufferedReader br)

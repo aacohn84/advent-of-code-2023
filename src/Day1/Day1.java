@@ -4,11 +4,6 @@ import AoC23.AoC23Day;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -38,50 +33,33 @@ public class Day1 extends AoC23Day {
     }
 
     @Override
-    public void run() {
-        Path filepath = Paths.get(filename);
-        if (Files.exists(filepath)) {
-            part1();
-            part2();
-        } else {
-            System.out.println("Couldn't find this file: " + filename);
-        }
+    protected void part1(BufferedReader br) {
+        int sum = br.lines().mapToInt(line -> {
+            Matcher m = digitsPattern.matcher(line);
+            int d1 = m.find() ? getDigit(m.group()) : 0;
+            String last = null;
+            while (m.find()) {
+                last = m.group();
+            }
+            int d2 = (last != null) ? getDigit(last) : d1;
+            return (10 * d1) + d2;
+        }).sum();
+        System.out.println("Part 1 - The sum is:" + sum);
     }
 
-    private void part1() {
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            int sum = br.lines().mapToInt(line -> {
-                Matcher m = digitsPattern.matcher(line);
-                int d1 = m.find() ? getDigit(m.group()) : 0;
-                String last = null;
-                while (m.find()) {
-                    last = m.group();
-                }
-                int d2 = (last != null) ? getDigit(last) : d1;
-                return (10 * d1) + d2;
-            }).sum();
-            System.out.println("Part 1 - The sum is:" + sum);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private void part2() {
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            int sum = br.lines().mapToInt(line -> {
-                int d1, d2;
-                if (line.length() == 1) {
-                    d1 = d2 = Character.getNumericValue(line.charAt(0));
-                } else {
-                    d1 = getFirstDigit(line).orElseThrow(() -> new RuntimeException("Invalid input"));
-                    d2 = getLastDigit(line).orElseThrow(() -> new RuntimeException("Invalid input"));
-                }
-                return (10 * d1) + d2;
-            }).sum();
-            System.out.println("Part 2 - The sum is:" + sum);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    @Override
+    protected void part2(BufferedReader br) {
+        int sum = br.lines().mapToInt(line -> {
+            int d1, d2;
+            if (line.length() == 1) {
+                d1 = d2 = Character.getNumericValue(line.charAt(0));
+            } else {
+                d1 = getFirstDigit(line).orElseThrow(() -> new RuntimeException("Invalid input"));
+                d2 = getLastDigit(line).orElseThrow(() -> new RuntimeException("Invalid input"));
+            }
+            return (10 * d1) + d2;
+        }).sum();
+        System.out.println("Part 2 - The sum is:" + sum);
     }
 
     private static Optional<Integer> getFirstDigit(String line) {

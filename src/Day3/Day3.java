@@ -4,8 +4,6 @@ import AoC23.AoC23Day;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class Day3 extends AoC23Day {
     public Day3(String filename) {
@@ -13,21 +11,16 @@ public class Day3 extends AoC23Day {
     }
 
     @Override
-    public void run() {
-        part1();
-        part2();
+    protected void part1(BufferedReader br) throws IOException {
+        calculateSum(br, new GetCurrentLineSumCalculator());
     }
 
-    private void part1() {
-        calculateSum(new GetCurrentLineSumCalculator());
+    @Override
+    protected void part2(BufferedReader br) throws IOException {
+        calculateSum(br, new GetGearRatioSumCalculator());
     }
 
-    private void part2() {
-        calculateSum(new GetGearRatioSumCalculator());
-    }
-
-    private void calculateSum(LineSumCalculator calculator) {
-        try (BufferedReader br = Files.newBufferedReader(Paths.get(filename))) {
+    private void calculateSum(BufferedReader br, LineSumCalculator calculator) throws IOException {
             int sum = 0;
             // Stage 1 -- start at beginning of file (2 lines: first line and the line below it)
             // sum any of top line's digits that are adjacent to a symbol on either line
@@ -50,9 +43,6 @@ public class Day3 extends AoC23Day {
             // Stage 3 -- move to end of the file (last line and the line above it)
             // sum any of bottom line's digits that are adjacent to a symbol on itself or the line above
             sum += calculator.calculate(currentLine, aboveLine);
-            System.out.println("Part 1 sum: " + sum);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            System.out.println("Part " + calculator.partNumber() + " sum: " + sum);
     }
 }

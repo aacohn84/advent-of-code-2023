@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * <a href="https://adventofcode.com/2023/day/2">Advent of Code 2023, Day 2</a>
+ */
 public class Day2 extends AoC23Day {
     private static final HashMap<String, Integer> colorLimitsMap = getColorCountMap(12, 13, 14);
 

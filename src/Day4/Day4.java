@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * <a href="https://adventofcode.com/2023/day/4">Advent of Code 2023, Day 4</a>
+ */
 public class Day4 extends AoC23Day {
 
     public Day4(String filename) {

@@ -5,6 +5,9 @@ import AoC23.AoC23Day;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+/**
+ * <a href="https://adventofcode.com/2023/day/3">Advent of Code 2023, Day 3</a>
+ */
 public class Day3 extends AoC23Day {
     public Day3(String filename) {
         super(filename);

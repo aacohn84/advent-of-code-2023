@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * <a href="https://adventofcode.com/2023/day/5">Advent of Code 2023, Day 5</a>
+ */
 public class Day5 extends AoC23Day {
     private static class GardenMap extends HashMap<GardenCategory, List<RangePair>> {}
 

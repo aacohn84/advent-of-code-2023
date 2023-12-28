@@ -9,6 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+/**
+ * <a href="https://adventofcode.com/2023/day/6">Advent of Code 2023, Day 6</a>
+ */
 public class Day6 extends AoC23Day {
     public Day6(String filename) {
         super(filename);

@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * <a href="https://adventofcode.com/2023/day/1">Advent of Code 2023, Day 1</a>
+ */
 public class Day1 extends AoC23Day {
     private static final HashMap<String, Integer> wordToIntMap = buildWordToDigitMap();
     private static final Pattern digitsAndWordsPattern = Pattern.compile("\\d|one|two|three|four|five|six|seven|eight|nine");

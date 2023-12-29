@@ -18,13 +18,22 @@ public class Day7 extends AoC23Day {
 
     @Override
     protected void part1(@NotNull BufferedReader br) throws IOException {
+        solve(br, new CardBidPart1Builder(), "1");
+    }
+
+    @Override
+    protected void part2(BufferedReader br) throws IOException {
+        solve(br, new CardBidPart2Builder(), "2");
+    }
+
+    private void solve(@NotNull BufferedReader br, CardBidBuilder builder, String part) throws IOException {
         SortedSet<CardBid> cardBids = new TreeSet<>();
         String bidLine;
         while ((bidLine = br.readLine()) != null && !bidLine.isEmpty()) {
             String[] parts = bidLine.trim().split("\\s+");
             String cards = parts[0];
             int bid = Integer.parseInt(parts[1]);
-            cardBids.add(new CardBid(cards, bid));
+            cardBids.add(builder.build(cards, bid));
         }
         int i = 0;
         int totalWinnings = 0;
@@ -32,11 +41,6 @@ public class Day7 extends AoC23Day {
             totalWinnings += cb.getBid() * (i + 1);
             i++;
         }
-        System.out.println("Part 1 winnings: " + totalWinnings);
-    }
-
-    @Override
-    protected void part2(BufferedReader br) throws IOException {
-
+        System.out.println("Part " + part + " winnings: " + totalWinnings);
     }
 }

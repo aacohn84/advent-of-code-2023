@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CardBid implements Comparable<CardBid> {
-    private final String cards;
-    private final int handValue;
-    private final int bid;
+    final String cards;
+    final int handValue;
+    final int bid;
 
     public CardBid (String cards, int bid) {
         this.cards = cards;
@@ -26,7 +26,7 @@ public class CardBid implements Comparable<CardBid> {
         return value;
     }
 
-    private static int getCardValue(char c) {
+    int getCardValue(char c) {
         switch (c) {
             case 'A': return 13;
             case 'K': return 12;

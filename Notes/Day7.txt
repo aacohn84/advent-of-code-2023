@@ -1,0 +1,44 @@
+How to rank the hands for day 7?
+
+I feel like it would be great if we could map the ranking to a number for easy comparisons. That way if we have to rank
+hands against each other, it's super easy, you just sort them by the numerical value.
+
+How can we assign scores to the hands? There are 5 cards per hand, and there are 7 types of hand you can have.
+
+So here's an idea: we have 5 cards per hand. For each card, we'll assign a value. Then we'll multiply that value by 13 to the power of its order in the hand. Finally, we have a value for the hand type, which is multiplied by the highest power of 13.
+
+So the card values would be:
+A = 13
+K = 12
+Q = 11
+J = 10
+T = 9
+9 = 8
+8 = 7
+7 = 6
+6 = 5
+5 = 4
+4 = 3
+3 = 2
+2 = 1
+
+For any 5-card hand, we will find its rank by the following formula:
+V = handRank * 13^5 + 1st * 13^4 + 2nd * 13^3 + 3rd * 13^2 + (4th * 13) + 5th
+
+Hand rankings:
+6 Five of a kind
+5 Four of a kind
+4 Full house
+3 Three of a kind
+2 Two pair
+1 One pair
+0 High card
+
+So, for example, five of a kind with all aces would be:
+V = 6 * 13^5 + 13 * 13^4 + 13 * 13^3 + 13 * 13^2 + 13 * 13 + 13 = 2629991
+
+If we compared that to five of a kind with the last card as a king, the value would be 3001283, so the first hand would win.
+
+One pair, even if it's the lowest possible pair, should still beat the highest possible high card hand.
+V(22345) = 13^5 + 1 * 13^4 + 1 * 13^3 + 2 * 13^2 + 3 * 13 + 4 = 402432
+V(A,K,Q,J,T) = 13 * 13^4 + 12 * 13^3 + 11 * 13^2 + 10 * 13 + 9 = 399655

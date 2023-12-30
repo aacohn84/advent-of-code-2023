@@ -9,30 +9,39 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day8 extends AoC23Day {
-    private static final Pattern ADDRESS_PATTERN = Pattern.compile("[A-Z]+");
+    private static final Pattern ADDRESS_PATTERN = Pattern.compile("[A-Z0-9]+");
 
     public Day8(String filename) {
         super(filename);
     }
 
+    public Day8(String part1Filename, String part2Filename) {
+        super(part1Filename, part2Filename);
+    }
+
     @Override
     protected void part1(@NotNull BufferedReader br) throws IOException {
+        NetworkNavigatorProvider navProvider = new Part1NetworkNavigatorProvider();
+       //ß solve(br, navProvider, "1");
+    }
+
+    private void solve(@NotNull BufferedReader br, NetworkNavigatorProvider navProvider, String part) throws IOException {
         // record the directions
         String directions = br.readLine();
         br.readLine(); // discard the blank line after the directions
 
         // create the network with the first node
-        Network n = new Network();
+        Network n = new Network(navProvider);
         String nodeLine;
         while ((nodeLine = br.readLine()) != null && !nodeLine.isEmpty()) {
             String[] lineParts = parseNodeLine(nodeLine);
             n.addNode(lineParts[0], lineParts[1], lineParts[2]);
         }
-        n.setStartNode("AAA");
+        n.setStartNodes();
 
         // navigate the network
-        int steps = n.navigate(directions, "ZZZ");
-        System.out.println("Part 1 step count: " + steps);
+        long steps = n.navigate(directions);
+        System.out.println("Part " + part + " step count: " + steps);
     }
 
     String[] parseNodeLine(String nodeLine) {
@@ -50,6 +59,7 @@ public class Day8 extends AoC23Day {
 
     @Override
     protected void part2(BufferedReader br) throws IOException {
-
+        NetworkNavigatorProvider navProvider = new Part2NetworkNavigatorProvider();
+        solve(br, navProvider, "2");
     }
 }

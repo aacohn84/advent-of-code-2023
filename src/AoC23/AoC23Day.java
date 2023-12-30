@@ -7,7 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public abstract class AoC23Day {
-    protected final Path filepath;
+    protected final Path part1Filepath;
+    protected final Path part2Filepath;
 
     public void run() {
         runPart1();
@@ -15,11 +16,17 @@ public abstract class AoC23Day {
     }
 
     public AoC23Day(String filename) {
-        this.filepath = Paths.get(filename);
+        this.part1Filepath = Paths.get(filename);
+        this.part2Filepath = part1Filepath;
+    }
+
+    public AoC23Day(String part1Filename, String part2Filename) {
+        this.part1Filepath = Paths.get(part1Filename);
+        this.part2Filepath = Paths.get(part2Filename);
     }
 
     private void runPart1() {
-        try (BufferedReader br = Files.newBufferedReader(filepath)) {
+        try (BufferedReader br = Files.newBufferedReader(part1Filepath)) {
             part1(br);
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -29,7 +36,7 @@ public abstract class AoC23Day {
     protected abstract void part1(BufferedReader br) throws IOException;
 
     private void runPart2() {
-        try (BufferedReader br = Files.newBufferedReader(filepath)) {
+        try (BufferedReader br = Files.newBufferedReader(part2Filepath)) {
             part2(br);
         } catch (IOException e) {
             System.out.println(e.getMessage());

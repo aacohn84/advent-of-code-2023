@@ -1,0 +1,8 @@
+5 = {Part2NetworkNavigator@610} "HMA = (TVC, RBX)" -> QLZ 13771 -> 47, 293
+3 = {Part2NetworkNavigator@608} "CXA = (XLT, VRF)" -> NVZ 17287 -> 59, 293
+4 = {Part2NetworkNavigator@609} "NPA = (TPC, SNK)" -> DHZ 19631 -> 67, 293
+0 = {Part2NetworkNavigator@605} "VHA = (KLF, HXJ)" -> KQZ 20803 -> 71, 293
+2 = {Part2NetworkNavigator@607} "GQA = (NQS, CNH)" -> BJZ 21389 -> 73, 293
+1 = {Part2NetworkNavigator@606} "AAA = (XBB, FGX)" -> ZZZ 23147 -> 79, 293
+
+Solution: 47 * 59 * 67 * 71 * 73 * 79 * 293 = 22289513667691

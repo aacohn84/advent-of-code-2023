@@ -12,6 +12,11 @@ public class NetworkNode {
         this.right = right;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s = (%s, %s)", address, left, right);
+    }
+
     public String getLeft() {
         return left;
     }

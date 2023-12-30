@@ -22,7 +22,7 @@ public class Day8 extends AoC23Day {
     @Override
     protected void part1(@NotNull BufferedReader br) throws IOException {
         NetworkNavigatorProvider navProvider = new Part1NetworkNavigatorProvider();
-       //ß solve(br, navProvider, "1");
+        solve(br, navProvider, "1");
     }
 
     private void solve(@NotNull BufferedReader br, NetworkNavigatorProvider navProvider, String part) throws IOException {

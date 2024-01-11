@@ -1,0 +1,20 @@
+O╔════╗╔╗╔╗╔╗╔═╗OOOO
+O║╔══╗║║║║║║║║╔╝OOOO
+O║║O╔╝║║║║║║║║╚╗OOOO
+╔╝╚╗╚╗╚╝╚╝║║╚╝I╚═╗OO
+╚══╝O╚╗III╚╝╔╗╔═╗╚╗O
+OOOO╔═╝II╔╗╔╝║╚╗╚╗╚╗
+OOOO╚╗I╔╗║║╚╗║I╚╗╚╗║
+OOOOO║╔╝╚╝║╔╝║╔╗║O╚╝
+OOOO╔╝╚═╗O║║O║║║║OOO
+OOOO╚═══╝O╚╝O╚╝╚╝OOO
+
+We transition between in/out if we see...
+(a) |
+ OR
+(b) F .. J, L .. 7
+
+For (b), we only transition if the pattern is COMPLETE.
+We will consider the pattern BROKEN if any of the following cases arise:
+
+F .. 7, L .. J, F .. |, L .. |

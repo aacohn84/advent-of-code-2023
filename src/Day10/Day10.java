@@ -182,17 +182,8 @@ public class Day10 extends AoC23Day {
 
         printMap(map);
 
-        // flood fill from the outside up to the pipes, marking all those locations as "outside" the pipe
-        // Set<TileLocation> outside = floodFillFromEdges(map, pipeLocations, nonPipeLocations);
-
-        // printMap(map);
-
-        // all other ground positions are inside the pipe?
-        // Set<TileLocation> inside = new HashSet<>(nonPipeLocations);
-        // inside.removeAll(outside);
-        // System.out.println("Number of tiles falling inside the pipe perimeter: " + inside.size());
-
-        System.out.println("Number of tiles falling inside the pipe perimeter (line counting):" + countInsideTiles(map));
+        System.out.println("Number of tiles falling inside the pipe perimeter (line counting):" +
+                countInsideTiles(map));
     }
 
     private void transformStartPipe(char[][] map, TileLocation startingPoint) {
@@ -265,86 +256,6 @@ public class Day10 extends AoC23Day {
             System.out.println();
         }
         System.out.println();
-    }
-
-    private Set<TileLocation> floodFillFromEdges(char[][] map, Set<TileLocation> pipes, Set<TileLocation> nonPipes) {
-        // for all ground locations along the outside edge of the map...
-        //      flood fill locations up to the pipe with 'O'
-        Set<TileLocation> outside = new HashSet<>();
-        // west edge
-        for (int i = 0; i < map.length; i++) {
-            TileLocation fillStart = new TileLocation(i, 0);
-            if (nonPipes.contains(fillStart)) {
-                outside.addAll(floodFillFromEdge(map, fillStart, Direction.WEST, pipes));
-            }
-        }
-        // east edge
-        for (int i = 0; i < map.length; i++) {
-            int eastEdge = map[i].length - 1;
-            TileLocation fillStart = new TileLocation(i, eastEdge);
-            if (nonPipes.contains(fillStart)) {
-                outside.addAll(floodFillFromEdge(map, fillStart, Direction.EAST, pipes));
-            }
-        }
-        // north edge
-        for (int i = 0; i < map.length; i++) {
-            TileLocation fillStart = new TileLocation(0, i);
-            if (nonPipes.contains(fillStart)) {
-                outside.addAll(floodFillFromEdge(map, fillStart, Direction.NORTH, pipes));
-            }
-        }
-        // south edge
-        for (int i = 0; i < map.length; i++) {
-            int southEdge = map.length - 1;
-            TileLocation fillStart = new TileLocation(southEdge, i);
-            if (nonPipes.contains(fillStart)) {
-                outside.addAll(floodFillFromEdge(map, fillStart, Direction.SOUTH, pipes));
-            }
-        }
-        return outside;
-    }
-
-    private Set<TileLocation> floodFillFromEdge(char[][] map, TileLocation start, Direction from, Set<TileLocation> pipes) {
-        Stack<TilePathEntry> path = new Stack<>();
-        Set<TileLocation> outside = new HashSet<>();
-        TilePathEntry t = new TilePathEntry(start, from);
-        putToMap(map, t.loc, 'O');
-        outside.add(t.loc);
-        boolean goBack = false;
-        do {
-            if (goBack) {
-                // we're going back, so let's grab the last location we visited
-                t = path.pop();
-                goBack = false;
-            }
-            if (t.directionsToTry.isEmpty()) {
-                // regardless of how we got here, we ran out of directions to try from this tile, so we have to go back
-                goBack = true;
-            } else {
-                // we have at least one direction we haven't tried from the current location, so let's go that way!
-                Direction nextDir = t.directionsToTry.pop();
-                TileLocation nextLoc = t.loc.moveTo(nextDir);
-                if (nextLoc.isWithinBoundsForMap(map) && !pipes.contains(nextLoc) && !outside.contains(nextLoc)) {
-                    path.push(t);
-                    t = new TilePathEntry(nextLoc, nextDir.getOpposite());
-                    putToMap(map, t.loc, 'O');
-                    outside.add(t.loc);
-                }
-            }
-        } while (!t.directionsToTry.isEmpty() || !path.isEmpty());
-        return outside;
-    }
-
-    private static class TilePathEntry {
-        TileLocation loc;
-        Stack<Direction> directionsToTry;
-
-        TilePathEntry(TileLocation l, Direction exclude) {
-            loc = l;
-            directionsToTry = new Stack<>();
-            directionsToTry.addAll(Arrays.asList(Direction.values()));
-            directionsToTry.remove(exclude);
-        }
     }
 
     private @NotNull Set<TileLocation> getAllMapLocations(char[][] map) {

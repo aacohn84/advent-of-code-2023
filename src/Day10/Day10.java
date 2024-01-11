@@ -11,9 +11,12 @@ import java.util.stream.Collectors;
 
 public class Day10 extends AoC23Day {
 
-    final static Map<Character, Tile> tiles = getTileEntryMappings();
+    final static Map<Character, Tile> tiles = getTileEntryMap();
+    final static Map<Character, Character> prettyPipeChars = getPrettyPipeCharMap();
+    final static Set<Character> pipeChars = getPipeChars();
+    final static Map<Set<Direction>, Character> reverseTileEntryMap = getReverseTileEntryMap();
 
-    private static Map<Character, Tile> getTileEntryMappings() {
+    private static @NotNull Map<Character, Tile> getTileEntryMap() {
         // Map of each type of pipe connector to the direction you must be travelling when you enter it
         Map<Character, Tile> m = new HashMap<>();
         m.put('F', new Tile('F', Direction.WEST, Direction.NORTH));
@@ -27,6 +30,43 @@ public class Day10 extends AoC23Day {
         return m;
     }
 
+    private static Map<Set<Direction>, Character> getReverseTileEntryMap() {
+        Map<Set<Direction>, Character> m = new HashMap<>();
+        m.put(new HashSet<>(Arrays.asList(Direction.WEST, Direction.NORTH)), 'F');
+        m.put(new HashSet<>(Arrays.asList(Direction.EAST, Direction.NORTH)), '7');
+        m.put(new HashSet<>(Arrays.asList(Direction.WEST, Direction.SOUTH)), 'L');
+        m.put(new HashSet<>(Arrays.asList(Direction.EAST, Direction.SOUTH)), 'J');
+        m.put(new HashSet<>(Arrays.asList(Direction.SOUTH, Direction.NORTH)), '|');
+        m.put(new HashSet<>(Arrays.asList(Direction.WEST, Direction.EAST)), '-');
+        return m;
+    }
+
+    private static @NotNull Map<Character, Character> getPrettyPipeCharMap() {
+        Map<Character, Character> m = new HashMap<>();
+        m.put('F', '╔');
+        m.put('7', '╗');
+        m.put('L', '╚');
+        m.put('J', '╝');
+        m.put('|', '║');
+        m.put('-', '═');
+        m.put('.', '∙');
+        m.put('S', 'S');
+        m.put('O', 'O');
+        m.put('I', 'I');
+        return m;
+    }
+
+    private static @NotNull Set<Character> getPipeChars() {
+        Set<Character> s = new HashSet<>();
+        s.add('F');
+        s.add('7');
+        s.add('L');
+        s.add('J');
+        s.add('|');
+        s.add('-');
+        return s;
+    }
+
     public Day10(String filename) {
         super(filename);
     }
@@ -36,8 +76,15 @@ public class Day10 extends AoC23Day {
         // load the pipe map
         char[][] map = readMap(br);
 
-        // find the starting point
-        PipeLocation startingPoint = getStartingPoint(map);
+        Set<TileLocation> tileLocations = getPipeLocations(map, getStartingPoint(map));
+        System.out.println("Steps from start part 1: " + tileLocations.size() / 2);
+    }
+
+    @NotNull
+    private Set<TileLocation> getPipeLocations(char[][] map, TileLocation startingPoint) {
+        // record all parts of the pipe, beginning with the starting point
+        Set<TileLocation> pipeLocations = new HashSet<>();
+        pipeLocations.add(startingPoint);
 
         // figure out where we can go from the start, since we don't know which kind of pipe we're sitting on
         Move n = null;
@@ -49,38 +96,33 @@ public class Day10 extends AoC23Day {
         if (n == null) {
             throw new RuntimeException("Couldn't figure out where to go from the starting point ¯\\_(ツ)_/¯");
         }
+        pipeLocations.add(n.location);
 
         // navigate the map while counting steps until we loop back to the start
-        int steps = 1;
-        Move prev = null;
-        while (n != null && getTileChar(n.location, map) != 'S') {
-            prev = n;
+        while (getTileChar(n.location, map) != 'S') {
             n = getNextPipeLocation(n, map);
-            steps++;
+            pipeLocations.add(n.location);
         }
-        if (n == null) {
-            throw new RuntimeException(String.format("Ran into a problem at: %s", prev.location));
-        }
-        System.out.println("Steps from start part 1: " + steps / 2);
+        return pipeLocations;
     }
 
-    private static char getTileChar(PipeLocation l, char[][] map) {
+    private static char getTileChar(TileLocation l, char[][] map) {
         return map[l.row][l.col];
     }
 
-    private static Tile getPipe(PipeLocation l, char[][] map) {
+    private static Tile getPipe(TileLocation l, char[][] map) {
         return tiles.get(getTileChar(l, map));
     }
 
     private static Move getNextPipeLocation(@NotNull Move from, char[][] map) {
         Direction d = getDirectionOut(from, map);
-        PipeLocation l = from.location;
+        TileLocation l = from.location;
         return getMove(l, d, map);
     }
 
     @Nullable
-    private static Move getMove(PipeLocation l, Direction d, char[][] map) {
-        PipeLocation to = l.moveTo(d);
+    private static Move getMove(TileLocation l, Direction d, char[][] map) {
+        TileLocation to = l.moveTo(d);
         if (to.isWithinBoundsForMap(map)) {
             Tile tileType = getPipe(to, map);
             if (tileType != null && tileType.hasEntryFrom(d)) {
@@ -94,11 +136,11 @@ public class Day10 extends AoC23Day {
         return getPipe(from.location, map).getDirectionOut(from.direction);
     }
 
-    private PipeLocation getStartingPoint(char[][] map) {
+    private TileLocation getStartingPoint(char[][] map) {
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 if (map[i][j] == 'S') {
-                    return new PipeLocation(i, j);
+                    return new TileLocation(i, j);
                 }
             }
         }
@@ -117,6 +159,201 @@ public class Day10 extends AoC23Day {
 
     @Override
     protected void part2(BufferedReader br) throws IOException {
+        // load the pipe map
+        char[][] map = readMap(br);
+        printMap(map);
 
+        // get all locations in the map
+        Set<TileLocation> allMapLocations = getAllMapLocations(map);
+
+        // find the pipe by navigating it, memorizing the location of every part along the way
+        TileLocation startingPoint = getStartingPoint(map);
+        Set<TileLocation> pipeLocations = getPipeLocations(map, startingPoint);
+
+        // transform every non-pipe location into ground '.'
+        Set<TileLocation> nonPipeLocations = new HashSet<>(allMapLocations);
+        nonPipeLocations.removeAll(pipeLocations);
+        for (TileLocation l : nonPipeLocations) {
+            putToMap(map, l, '.');
+        }
+
+        // figure out what kind of pipe the starting point is
+        transformStartPipe(map, startingPoint);
+
+        printMap(map);
+
+        // flood fill from the outside up to the pipes, marking all those locations as "outside" the pipe
+        // Set<TileLocation> outside = floodFillFromEdges(map, pipeLocations, nonPipeLocations);
+
+        // printMap(map);
+
+        // all other ground positions are inside the pipe?
+        // Set<TileLocation> inside = new HashSet<>(nonPipeLocations);
+        // inside.removeAll(outside);
+        // System.out.println("Number of tiles falling inside the pipe perimeter: " + inside.size());
+
+        System.out.println("Number of tiles falling inside the pipe perimeter (line counting):" + countInsideTiles(map));
+    }
+
+    private void transformStartPipe(char[][] map, TileLocation startingPoint) {
+        Set<Direction> startingPointEntries = new HashSet<>();
+        for (Direction d : Direction.values()) {
+            Move m = getMove(startingPoint, d, map);
+            if (m != null && pipeChars.contains(getFromMap(map, m.location))) {
+                startingPointEntries.add(d.getOpposite());
+            }
+        }
+        Character startingPipeChar = reverseTileEntryMap.get(startingPointEntries);
+        putToMap(map, startingPoint, startingPipeChar);
+    }
+
+    private Character getFromMap(char[][] map, TileLocation loc) {
+        return map[loc.row][loc.col];
+    }
+
+    private void putToMap(char[][] map, TileLocation loc, char c) {
+        map[loc.row][loc.col] = c;
+    }
+
+    private int countInsideTiles(char[][] map) {
+        int insideCount = 0;
+        for (char[] chars : map) {
+            boolean inside = false;
+            Character patternStart = null;
+            for (Character c : chars) {
+                if (c == '.' && inside) {
+                    insideCount += 1;
+                } else if (isTransition(c, patternStart)) {
+                    inside = !inside;
+                    patternStart = null;
+                } else if (patternStart == null && isPatternStart(c)) {
+                    patternStart = c;
+                } else if (isPatternBroken(c, patternStart)) {
+                    patternStart = null;
+                }
+            }
+        }
+        return insideCount;
+    }
+
+    private boolean isTransition(Character c, Character patternStart) {
+        return (c == '|') || isPatternComplete(c, patternStart);
+    }
+
+    private static boolean isPatternComplete(Character c, Character patternStart) {
+        return patternStart != null && (
+                (patternStart == 'L' && c == '7' || patternStart == '7' && c == 'L') ||
+                (patternStart == 'F' && c == 'J' || patternStart == 'J' && c == 'F')
+        );
+    }
+
+    private boolean isPatternStart(Character c) {
+        return (c == 'F' || c == 'J' || c == 'L' || c == '7');
+    }
+
+    private boolean isPatternBroken(Character c, Character patternStart) {
+        if (patternStart == null) return false;
+        if (c == '|') return true;
+        return (patternStart == 'F' && c == '7' || patternStart == 'L' && c == 'J');
+    }
+
+    private void printMap(char[][] map) {
+        for (char[] chars : map) {
+            for (char c : chars) {
+                System.out.print(prettyPipeChars.get(c));
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private Set<TileLocation> floodFillFromEdges(char[][] map, Set<TileLocation> pipes, Set<TileLocation> nonPipes) {
+        // for all ground locations along the outside edge of the map...
+        //      flood fill locations up to the pipe with 'O'
+        Set<TileLocation> outside = new HashSet<>();
+        // west edge
+        for (int i = 0; i < map.length; i++) {
+            TileLocation fillStart = new TileLocation(i, 0);
+            if (nonPipes.contains(fillStart)) {
+                outside.addAll(floodFillFromEdge(map, fillStart, Direction.WEST, pipes));
+            }
+        }
+        // east edge
+        for (int i = 0; i < map.length; i++) {
+            int eastEdge = map[i].length - 1;
+            TileLocation fillStart = new TileLocation(i, eastEdge);
+            if (nonPipes.contains(fillStart)) {
+                outside.addAll(floodFillFromEdge(map, fillStart, Direction.EAST, pipes));
+            }
+        }
+        // north edge
+        for (int i = 0; i < map.length; i++) {
+            TileLocation fillStart = new TileLocation(0, i);
+            if (nonPipes.contains(fillStart)) {
+                outside.addAll(floodFillFromEdge(map, fillStart, Direction.NORTH, pipes));
+            }
+        }
+        // south edge
+        for (int i = 0; i < map.length; i++) {
+            int southEdge = map.length - 1;
+            TileLocation fillStart = new TileLocation(southEdge, i);
+            if (nonPipes.contains(fillStart)) {
+                outside.addAll(floodFillFromEdge(map, fillStart, Direction.SOUTH, pipes));
+            }
+        }
+        return outside;
+    }
+
+    private Set<TileLocation> floodFillFromEdge(char[][] map, TileLocation start, Direction from, Set<TileLocation> pipes) {
+        Stack<TilePathEntry> path = new Stack<>();
+        Set<TileLocation> outside = new HashSet<>();
+        TilePathEntry t = new TilePathEntry(start, from);
+        putToMap(map, t.loc, 'O');
+        outside.add(t.loc);
+        boolean goBack = false;
+        do {
+            if (goBack) {
+                // we're going back, so let's grab the last location we visited
+                t = path.pop();
+                goBack = false;
+            }
+            if (t.directionsToTry.isEmpty()) {
+                // regardless of how we got here, we ran out of directions to try from this tile, so we have to go back
+                goBack = true;
+            } else {
+                // we have at least one direction we haven't tried from the current location, so let's go that way!
+                Direction nextDir = t.directionsToTry.pop();
+                TileLocation nextLoc = t.loc.moveTo(nextDir);
+                if (nextLoc.isWithinBoundsForMap(map) && !pipes.contains(nextLoc) && !outside.contains(nextLoc)) {
+                    path.push(t);
+                    t = new TilePathEntry(nextLoc, nextDir.getOpposite());
+                    putToMap(map, t.loc, 'O');
+                    outside.add(t.loc);
+                }
+            }
+        } while (!t.directionsToTry.isEmpty() || !path.isEmpty());
+        return outside;
+    }
+
+    private static class TilePathEntry {
+        TileLocation loc;
+        Stack<Direction> directionsToTry;
+
+        TilePathEntry(TileLocation l, Direction exclude) {
+            loc = l;
+            directionsToTry = new Stack<>();
+            directionsToTry.addAll(Arrays.asList(Direction.values()));
+            directionsToTry.remove(exclude);
+        }
+    }
+
+    private @NotNull Set<TileLocation> getAllMapLocations(char[][] map) {
+        Set<TileLocation> allMapLocations = new HashSet<>();
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                allMapLocations.add(new TileLocation(i, j));
+            }
+        }
+        return allMapLocations;
     }
 }

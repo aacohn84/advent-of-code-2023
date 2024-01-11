@@ -1,8 +1,10 @@
 package AoC23;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -28,6 +30,8 @@ public abstract class AoC23Day {
     private void runPart1() {
         try (BufferedReader br = Files.newBufferedReader(part1Filepath)) {
             part1(br);
+        } catch (NoSuchFileException e) {
+            System.out.println("File not found: " + e.getMessage());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -38,6 +42,8 @@ public abstract class AoC23Day {
     private void runPart2() {
         try (BufferedReader br = Files.newBufferedReader(part2Filepath)) {
             part2(br);
+        } catch (NoSuchFileException e) {
+            System.out.println("File not found: " + e.getMessage());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

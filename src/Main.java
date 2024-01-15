@@ -1,9 +1,9 @@
 import AoC23.AoC23Day;
-import Day10.Day10;
+import Day11.Day11;
 
 public class Main {
     public static void main(String[] args) {
-        AoC23Day day = new Day10("Inputs/day10.txt");
+        AoC23Day day = new Day11("Inputs/day11.txt");
         day.run();
     }
 }

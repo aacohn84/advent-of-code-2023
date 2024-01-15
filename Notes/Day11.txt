@@ -1,0 +1,10 @@
+Expanding the space:
+First, find out which columns and rows are empty.
+For every empty column or row, a new empty column or row will be added adjacent to it.
+The new column will be placed to the right of the empty column, and the new row will be placed below the empty row.
+
+Finding the shortest paths between galaxies:
+First, find the location of every galaxy
+Next, create a SET of galaxy pairs. Identical pairs will be filtered out.
+For each pair, return the straight-line distance between the galaxies.
+The solution is the sum of distances.

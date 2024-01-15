@@ -1,32 +1,11 @@
 package Day10;
 
+import AoC23.GridLocation;
 import org.jetbrains.annotations.NotNull;
 
-class TileLocation {
-    int row;
-    int col;
-
+class TileLocation extends GridLocation {
     TileLocation(int row, int col) {
-        this.row = row;
-        this.col = col;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) return true;
-        if (!(other instanceof TileLocation)) return false;
-        TileLocation l = (TileLocation) other;
-        return (this.row == l.row && this.col == l.col);
-    }
-
-    @Override
-    public int hashCode() {
-        return (String.valueOf(row) + col).hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "(" + row + ", " + col + ")";
+        super(row, col);
     }
 
     TileLocation moveTo(@NotNull Direction d) {
